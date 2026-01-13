@@ -1,4 +1,4 @@
-package ru.hogwarts.school.service;
+ package ru.hogwarts.school.service;
 
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
