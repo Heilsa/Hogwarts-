@@ -1,4 +1,4 @@
-package ru.hogwarts.school.controller;
+ package ru.hogwarts.school.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
