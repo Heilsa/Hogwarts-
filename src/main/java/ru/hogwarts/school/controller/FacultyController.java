@@ -61,4 +61,13 @@ public class FacultyController {
     public Collection<Faculty> getAllFaculties() {
         return facultyService.getAllFaculties();
     }
+
+    @GetMapping("/search")
+    @Operation(summary = "Найти факультеты по имени или цвету (без учета регистра)")
+    public Collection<Faculty> findFacultiesByNameOrColor(
+            @Parameter(description = "Название или цвет факультета", example = "гриффиндор")
+            @RequestParam String nameOrColor) {
+        return facultyService.findFacultiesByNameOrColor(nameOrColor);
+    }
 }
+

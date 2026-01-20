@@ -61,4 +61,14 @@ public class StudentController {
     public Collection<Student> getAllStudents() {
         return studentService.getAllStudents();
     }
+
+    @GetMapping("/age/between")
+    @Operation(summary = "Найти студентов по возрастному диапазону")
+    public Collection<Student> getStudentsByAgeBetween(
+            @Parameter(description = "Минимальный возраст", example = "10")
+            @RequestParam int minAge,
+            @Parameter(description = "Максимальный возраст", example = "20")
+            @RequestParam int maxAge) {
+        return studentService.getStudentsByAgeBetween(minAge, maxAge);
+    }
 }
