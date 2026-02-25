@@ -3,13 +3,16 @@
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.Collection;
+import java.util.List;
 
-@RestController
+ @RestController
 @RequestMapping("/faculty")
 @Tag(name = "Факультеты", description = "API для управления факультетами Хогвартса")
 public class FacultyController {
@@ -68,6 +71,11 @@ public class FacultyController {
             @Parameter(description = "Название или цвет факультета", example = "гриффиндор")
             @RequestParam String nameOrColor) {
         return facultyService.findFacultiesByNameOrColor(nameOrColor);
+    }
+    @GetMapping("/{id}/students")
+    public ResponseEntity<List<Student>> getFacultyStudents(@PathVariable Long id) {
+        List<Student> students = facultyService.getFacultyStudents(id);
+        return ResponseEntity.ok(students);
     }
 }
 
