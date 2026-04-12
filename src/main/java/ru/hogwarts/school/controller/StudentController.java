@@ -1,4 +1,4 @@
- package ru.hogwarts.school.controller;
+package ru.hogwarts.school.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,10 +10,11 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/student")
-@Tag(name = "Студенты", description = "API для управления студентами Хогвартса")  // Исправлено: Студенты
+@Tag(name = "Студенты", description = "API для управления студентами Хогвартса")
 public class StudentController {
     private final StudentService studentService;
 
@@ -22,17 +23,14 @@ public class StudentController {
     }
 
     @PostMapping
-    @Operation(summary = "Создать нового студента",
-            description = "Создает нового студента и возвращает его с присвоенным ID")
+    @Operation(summary = "Создать нового студента")
     public Student createStudent(@RequestBody Student student) {
         return studentService.createStudent(student);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить студента по ID")
-    public Student getStudent(
-            @Parameter(description = "ID студента", example = "1")
-            @PathVariable Long id) {
+    public Student getStudent(@PathVariable Long id) {
         return studentService.getStudent(id);
     }
 
@@ -44,17 +42,13 @@ public class StudentController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить студента")
-    public void deleteStudent(
-            @Parameter(description = "ID студента", example = "1")
-            @PathVariable Long id) {
+    public void deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
     }
 
     @GetMapping("/age/{age}")
     @Operation(summary = "Фильтр студентов по возрасту")
-    public Collection<Student> getStudentsByAge(
-            @Parameter(description = "Возраст для фильтрации", example = "17")
-            @PathVariable int age) {
+    public Collection<Student> getStudentsByAge(@PathVariable int age) {
         return studentService.getStudentsByAge(age);
     }
 
@@ -67,12 +61,11 @@ public class StudentController {
     @GetMapping("/age/between")
     @Operation(summary = "Найти студентов по возрастному диапазону")
     public Collection<Student> getStudentsByAgeBetween(
-            @Parameter(description = "Минимальный возраст", example = "10")
             @RequestParam int minAge,
-            @Parameter(description = "Максимальный возраст", example = "20")
             @RequestParam int maxAge) {
         return studentService.getStudentsByAgeBetween(minAge, maxAge);
     }
+
     @GetMapping("/{id}/faculty")
     public ResponseEntity<Faculty> getStudentFaculty(@PathVariable Long id) {
         Faculty faculty = studentService.getStudentFaculty(id);
@@ -81,17 +74,39 @@ public class StudentController {
         }
         return ResponseEntity.ok(faculty);
     }
+
     @PostMapping("/{studentId}/faculty/{facultyId}")
     @Operation(summary = "Назначить факультет студенту")
     public ResponseEntity<Student> assignStudentToFaculty(
-            @Parameter(description = "ID студента", example = "1")
             @PathVariable Long studentId,
-            @Parameter(description = "ID факультета", example = "1")
             @PathVariable Long facultyId) {
         Student student = studentService.assignStudentToFaculty(studentId, facultyId);
         if (student == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(student);
+    }
+
+    @GetMapping("/count")
+    @Operation(summary = "Получить количество всех студентов")
+    public ResponseEntity<Integer> getCountOfStudents() {
+        Integer count = studentService.getCountOfStudents();
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/average-age")
+    @Operation(summary = "Получить средний возраст студентов")
+    public ResponseEntity<Double> getAverageAgeOfStudents() {
+        Double averageAge = studentService.getAverageAgeOfStudents();
+        return ResponseEntity.ok(averageAge);
+    }
+
+    @GetMapping("/last/{count}")
+    @Operation(summary = "Получить последних N студентов")
+    public ResponseEntity<List<Student>> getLastNStudents(
+            @Parameter(description = "Количество студентов", example = "5")
+            @PathVariable int count) {
+        List<Student> students = studentService.getLastNStudents(count);
+        return ResponseEntity.ok(students);
     }
 }

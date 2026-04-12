@@ -16,6 +16,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -294,5 +295,65 @@ class StudentControllerWebMvcTest {
         // when & then
         mockMvc.perform(post("/student/{studentId}/faculty/{facultyId}", studentId, facultyId))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getCountOfStudents_ShouldReturnCount() throws Exception {
+        // given
+        Integer expectedCount = 10;
+        when(studentService.getCountOfStudents()).thenReturn(expectedCount);
+
+        // when & then
+        mockMvc.perform(get("/student/count"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("10"));
+
+        verify(studentService, times(1)).getCountOfStudents();
+    }
+
+    @Test
+    void getAverageAgeOfStudents_ShouldReturnAverageAge() throws Exception {
+        // given
+        Double expectedAverage = 17.5;
+        when(studentService.getAverageAgeOfStudents()).thenReturn(expectedAverage);
+
+        // when & then
+        mockMvc.perform(get("/student/average-age"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("17.5"));
+
+        verify(studentService, times(1)).getAverageAgeOfStudents();
+    }
+
+    @Test
+    void getLastNStudents_ShouldReturnLastNStudents() throws Exception {
+        // given
+        int count = 3;
+        Student student1 = new Student();
+        student1.setId(3L);
+        student1.setName("Студент 3");
+        student1.setAge(18);
+
+        Student student2 = new Student();
+        student2.setId(2L);
+        student2.setName("Студент 2");
+        student2.setAge(17);
+
+        Student student3 = new Student();
+        student3.setId(1L);
+        student3.setName("Студент 1");
+        student3.setAge(16);
+
+        List<Student> students = Arrays.asList(student1, student2, student3);
+        when(studentService.getLastNStudents(count)).thenReturn(students);
+
+        // when & then
+        mockMvc.perform(get("/student/last/{count}", count))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(3))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[2].id").value(1));
+
+        verify(studentService, times(1)).getLastNStudents(count);
     }
 }

@@ -8,18 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
 
     private final StudentRepository studentRepository;
-    private final FacultyRepository facultyRepository; // Добавьте это поле
+    private final FacultyRepository facultyRepository;
 
     @Autowired
     public StudentService(StudentRepository studentRepository,
-                          FacultyRepository facultyRepository) { // Добавьте в конструктор
+                          FacultyRepository facultyRepository) {
         this.studentRepository = studentRepository;
-        this.facultyRepository = facultyRepository; // Инициализируйте поле
+        this.facultyRepository = facultyRepository;
     }
 
     public Student getStudent(Long id) {
@@ -31,6 +33,10 @@ public class StudentService {
     }
 
     public Student createStudent(Student student) {
+        if (student.getFaculty() != null && student.getFaculty().getId() != null) {
+            Faculty faculty = facultyRepository.findById(student.getFaculty().getId()).orElse(null);
+            student.setFaculty(faculty);
+        }
         return studentRepository.save(student);
     }
 
@@ -45,7 +51,7 @@ public class StudentService {
     public Collection<Student> getStudentsByAge(int age) {
         return studentRepository.findAll().stream()
                 .filter(student -> student.getAge() == age)
-                .toList();
+                .collect(Collectors.toList());  // ← заменили toList() на collect(Collectors.toList())
     }
 
     public Collection<Student> getStudentsByAgeBetween(int minAge, int maxAge) {
@@ -67,5 +73,17 @@ public class StudentService {
 
         student.setFaculty(faculty);
         return studentRepository.save(student);
+    }
+
+    public Integer getCountOfStudents() {
+        return studentRepository.getCountOfStudents();
+    }
+
+    public Double getAverageAgeOfStudents() {
+        return studentRepository.getAverageAgeOfStudents();
+    }
+
+    public List<Student> getLastNStudents(int count) {
+        return studentRepository.getLastNStudents(count);
     }
 }
