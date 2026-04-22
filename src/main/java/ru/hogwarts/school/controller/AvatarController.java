@@ -3,6 +3,8 @@ package ru.hogwarts.school.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,8 @@ import java.nio.file.Paths;
 @Tag(name = "Аватары", description = "API для управления аватарами студентов")
 public class AvatarController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AvatarController.class);
+
     private final AvatarService avatarService;
 
     public AvatarController(AvatarService avatarService) {
@@ -35,6 +39,7 @@ public class AvatarController {
     public ResponseEntity<String> uploadAvatar(
             @PathVariable Long studentId,
             @RequestParam MultipartFile avatar) throws IOException {
+        logger.info("Request to upload avatar for student id = {}", studentId);
         avatarService.uploadAvatar(studentId, avatar);
         return ResponseEntity.ok("Аватар успешно загружен");
     }
@@ -42,15 +47,18 @@ public class AvatarController {
     @GetMapping("/{id}/download")
     @Operation(summary = "Скачать аватар по ID")
     public ResponseEntity<byte[]> downloadAvatar(@PathVariable Long id) {
+        logger.info("Request to download avatar for student id = {}", id);
         Avatar avatar = avatarService.getAvatarByStudentId(id);
-
+        if (avatar == null) {
+            logger.warn("Avatar not found for student id = {}", id);
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(avatar.getMediaType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + id + ".png")
                 .body(avatar.getData());
     }
 
-    // ========== НОВЫЙ ЭНДПОИНТ С ПАГИНАЦИЕЙ ДЛЯ ДОМАШНЕГО ЗАДАНИЯ ==========
     @GetMapping
     @Operation(summary = "Получить все аватары с пагинацией")
     public ResponseEntity<Page<Avatar>> getAllAvatars(
@@ -58,7 +66,7 @@ public class AvatarController {
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Количество элементов на странице", example = "10")
             @RequestParam(defaultValue = "10") int size) {
-
+        logger.info("Request to get all avatars: page = {}, size = {}", page, size);
         Page<Avatar> avatars = avatarService.getAllAvatars(page, size);
         return ResponseEntity.ok(avatars);
     }
