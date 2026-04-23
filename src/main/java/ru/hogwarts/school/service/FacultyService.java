@@ -100,4 +100,19 @@ public class FacultyService {
         logger.debug("Faculty has {} students", students.size());
         return students;
     }
+
+    public String getLongestFacultyName() {
+        logger.info("Was invoked method for get longest faculty name");
+
+        String longestName = facultyRepository.findAll().stream()
+                .map(Faculty::getName)
+                .filter(name -> name != null)
+                .max((name1, name2) -> Integer.compare(name1.length(), name2.length()))
+                .orElse("No faculties found");
+
+        logger.debug("Longest faculty name: '{}' (length: {})", longestName, longestName.length());
+        return longestName;
+    }
+
+
 }

@@ -11,6 +11,7 @@ import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -150,5 +151,19 @@ public class StudentService {
         List<Student> students = studentRepository.getLastNStudents(count);
         logger.debug("Retrieved {} students", students.size());
         return students;
+    }
+
+    public List<String> getNamesStartingWithA() {
+        logger.info("Was invoked method for get names starting with 'A'");
+
+        List<String> result = studentRepository.findAll().stream()
+                .map(Student::getName)                          // берем имена
+                .filter(name -> name != null && name.startsWith("А")) // фильтруем на "А"
+                .map(String::toUpperCase)                       // преобразуем в верхний регистр
+                .sorted()                                       // сортируем в алфавитном порядке
+                .collect(Collectors.toList());
+
+        logger.debug("Found {} names starting with 'A'", result.size());
+        return result;
     }
 }

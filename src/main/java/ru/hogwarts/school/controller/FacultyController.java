@@ -1,8 +1,10 @@
- package ru.hogwarts.school.controller;
+package ru.hogwarts.school.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
@@ -12,10 +14,12 @@ import ru.hogwarts.school.service.FacultyService;
 import java.util.Collection;
 import java.util.List;
 
- @RestController
+@RestController
 @RequestMapping("/faculty")
 @Tag(name = "Факультеты", description = "API для управления факультетами Хогвартса")
 public class FacultyController {
+
+    private static final Logger logger = LoggerFactory.getLogger(FacultyController.class);
 
     private final FacultyService facultyService;
 
@@ -31,9 +35,7 @@ public class FacultyController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить факультет по ID")
-    public Faculty getFaculty(
-            @Parameter(description = "ID факультета", example = "1")
-            @PathVariable Long id) {
+    public Faculty getFaculty(@PathVariable Long id) {
         return facultyService.getFaculty(id);
     }
 
@@ -45,17 +47,13 @@ public class FacultyController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить факультет")
-    public void deleteFaculty(
-            @Parameter(description = "ID факультета", example = "1")
-            @PathVariable Long id) {
+    public void deleteFaculty(@PathVariable Long id) {
         facultyService.deleteFaculty(id);
     }
 
     @GetMapping("/color/{color}")
     @Operation(summary = "Фильтр факультетов по цвету")
-    public Collection<Faculty> getFacultiesByColor(
-            @Parameter(description = "Цвет для фильтрации", example = "красный")
-            @PathVariable String color) {
+    public Collection<Faculty> getFacultiesByColor(@PathVariable String color) {
         return facultyService.getFacultiesByColor(color);
     }
 
@@ -67,15 +65,21 @@ public class FacultyController {
 
     @GetMapping("/search")
     @Operation(summary = "Найти факультеты по имени или цвету (без учета регистра)")
-    public Collection<Faculty> findFacultiesByNameOrColor(
-            @Parameter(description = "Название или цвет факультета", example = "гриффиндор")
-            @RequestParam String nameOrColor) {
+    public Collection<Faculty> findFacultiesByNameOrColor(@RequestParam String nameOrColor) {
         return facultyService.findFacultiesByNameOrColor(nameOrColor);
     }
+
     @GetMapping("/{id}/students")
     public ResponseEntity<List<Student>> getFacultyStudents(@PathVariable Long id) {
         List<Student> students = facultyService.getFacultyStudents(id);
         return ResponseEntity.ok(students);
     }
-}
 
+    @GetMapping("/longest-name")
+    @Operation(summary = "Получить самое длинное название факультета")
+    public ResponseEntity<String> getLongestFacultyName() {
+        logger.info("Request to get longest faculty name");
+        String longestName = facultyService.getLongestFacultyName();
+        return ResponseEntity.ok(longestName);
+    }
+}

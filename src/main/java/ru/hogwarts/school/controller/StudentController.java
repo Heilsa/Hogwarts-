@@ -3,6 +3,8 @@ package ru.hogwarts.school.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
@@ -16,6 +18,9 @@ import java.util.List;
 @RequestMapping("/student")
 @Tag(name = "Студенты", description = "API для управления студентами Хогвартса")
 public class StudentController {
+
+    private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
+
     private final StudentService studentService;
 
     public StudentController(StudentService studentService) {
@@ -108,5 +113,13 @@ public class StudentController {
             @PathVariable int count) {
         List<Student> students = studentService.getLastNStudents(count);
         return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/names-starting-with-a")
+    @Operation(summary = "Получить имена студентов, начинающиеся на букву А")
+    public ResponseEntity<List<String>> getNamesStartingWithA() {
+        logger.info("Request to get names starting with 'A'");
+        List<String> names = studentService.getNamesStartingWithA();
+        return ResponseEntity.ok(names);
     }
 }
