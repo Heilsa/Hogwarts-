@@ -166,4 +166,93 @@ public class StudentService {
         logger.debug("Found {} names starting with 'A'", result.size());
         return result;
     }
+
+    public synchronized void synchronizedPrint(String studentName, String threadName, int position) {
+        System.out.println(position + "-й студент (" + threadName + "): " + studentName);
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public void printStudentsSynchronized() {
+        List<Student> students = studentRepository.findAll().stream()
+                .limit(6)
+                .collect(Collectors.toList());
+
+        if (students.size() < 6) {
+            System.out.println("Недостаточно студентов в базе. Найдено: " + students.size());
+            return;
+        }
+
+        System.out.println("=========================================");
+        System.out.println("ШАГ 2 - Синхронизированный вывод");
+        System.out.println("=========================================");
+
+        synchronizedPrint(students.get(0).getName(), "основной поток", 1);
+        synchronizedPrint(students.get(1).getName(), "основной поток", 2);
+
+        Thread thread1 = new Thread(() -> {
+            synchronizedPrint(students.get(2).getName(), "поток 1", 3);
+            synchronizedPrint(students.get(3).getName(), "поток 1", 4);
+        });
+
+        Thread thread2 = new Thread(() -> {
+            synchronizedPrint(students.get(4).getName(), "поток 2", 5);
+            synchronizedPrint(students.get(5).getName(), "поток 2", 6);
+        });
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("=========================================");
+    }
+
+    public void printStudentsParallel() {
+        List<Student> students = studentRepository.findAll().stream()
+                .limit(6)
+                .collect(Collectors.toList());
+
+        if (students.size() < 6) {
+            System.out.println("Недостаточно студентов в базе. Найдено: " + students.size());
+            return;
+        }
+
+        System.out.println("=========================================");
+        System.out.println("ШАГ 1 - Параллельный вывод БЕЗ синхронизации");
+        System.out.println("=========================================");
+
+        System.out.println("1-й студент (основной поток): " + students.get(0).getName());
+        System.out.println("2-й студент (основной поток): " + students.get(1).getName());
+
+        Thread thread1 = new Thread(() -> {
+            System.out.println("3-й студент (поток 1): " + students.get(2).getName());
+            System.out.println("4-й студент (поток 1): " + students.get(3).getName());
+        });
+
+        Thread thread2 = new Thread(() -> {
+            System.out.println("5-й студент (поток 2): " + students.get(4).getName());
+            System.out.println("6-й студент (поток 2): " + students.get(5).getName());
+        });
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("=========================================");
+    }
 }

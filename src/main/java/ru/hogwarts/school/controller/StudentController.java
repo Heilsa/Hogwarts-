@@ -122,4 +122,18 @@ public class StudentController {
         List<String> names = studentService.getNamesStartingWithA();
         return ResponseEntity.ok(names);
     }
+
+    @GetMapping("/print-synchronized")
+    @Operation(summary = "Вывести имена студентов в синхронизированном режиме")
+    public ResponseEntity<String> printStudentsSynchronized() {
+        studentService.printStudentsSynchronized();
+        return ResponseEntity.ok("Проверьте консоль - имена студентов выведены в синхронизированном режиме");
+    }
+
+    @GetMapping("/print-parallel")
+    @Operation(summary = "Вывести имена студентов в параллельном режиме (без синхронизации)")
+    public ResponseEntity<String> printStudentsParallel() {
+        studentService.printStudentsParallel();
+        return ResponseEntity.ok("Проверьте консоль - имена студентов выведены");
+    }
 }
